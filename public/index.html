@@ -523,8 +523,6 @@
     const clientId = document.getElementById('clientId').value.trim();
     const clientSecret = document.getElementById('clientSecret').value.trim();
     const redirectUri = document.getElementById('redirectUri').value.trim();
-    const scopes = document.getElementById('scopes').value.trim();
-
     if (!shop || !clientId || !clientSecret || !redirectUri) {
       alert('Lütfen tüm alanları doldur.');
       return;
@@ -532,7 +530,7 @@
 
     sessionStorage.setItem('shopify_oauth', JSON.stringify({ shop, clientId, clientSecret }));
 
-    const url = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    const url = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
 
     document.getElementById('authUrlDisplay').textContent = url;
     document.getElementById('authUrlLink').href = url;
