@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopify Access Token Aracı</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f13;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #96bf48, #5c9e31);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .step-card {
+      background: #1a1a24;
+      border: 1px solid #2d2d3d;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .step-card.active {
+      border-color: #96bf48;
+    }
+
+    .step-card.done {
+      border-color: #2a4a1a;
+      opacity: 0.85;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .step-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #2d2d3d;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .step-card.active .step-badge {
+      background: #96bf48;
+      color: #000;
+    }
+
+    .step-card.done .step-badge {
+      background: #5c9e31;
+      color: #fff;
+    }
+
+    .step-card.done .step-badge::after {
+      content: '✓';
+    }
+
+    .step-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      background: #0f0f13;
+      border: 1px solid #2d2d3d;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #e2e8f0;
+      font-size: 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      border-color: #96bf48;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #96bf48;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #a8d455;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #2d2d3d;
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #3d3d50;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .url-display {
+      background: #0f0f13;
+      border: 1px solid #2d2d3d;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: #96bf48;
+      word-break: break-all;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .result-box {
+      background: #0a1a05;
+      border: 1px solid #2a4a1a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .result-box .token-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #5c9e31;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .token-value {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      color: #96bf48;
+      word-break: break-all;
+      background: #071205;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #1a3a10;
+    }
+
+    .error-box {
+      background: #1a0a0a;
+      border: 1px solid #4a1a1a;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #f87171;
+    }
+
+    .info-box {
+      background: #0a1020;
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #7dd3fc;
+    }
+
+    .extracted-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #0f0f13;
+      border: 1px solid #2d2d3d;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 10px;
+    }
+
+    .extracted-field span:first-child {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .extracted-field .extracted-value {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: #96bf48;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .badge-ok {
+      font-size: 11px;
+      background: #1a3a10;
+      color: #96bf48;
+      padding: 2px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid #2d2d3d;
+      border-radius: 6px;
+      color: #64748b;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      border-color: #96bf48;
+      color: #96bf48;
+    }
+
+    .copy-btn.copied {
+      border-color: #5c9e31;
+      color: #5c9e31;
+    }
+
+    .divider {
+      height: 1px;
+      background: #2d2d3d;
+      margin: 20px 0;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #2d2d3d;
+      border-top-color: #96bf48;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .step-num { display: inline; }
+    .step-card.done .step-num { display: none; }
+
+    .postman-section {
+      margin-top: 16px;
+    }
+
+    .postman-section summary {
+      cursor: pointer;
+      font-size: 12px;
+      color: #64748b;
+      padding: 8px 0;
+      user-select: none;
+    }
+
+    .postman-section summary:hover { color: #94a3b8; }
+
+    .curl-block {
+      background: #0f0f13;
+      border: 1px solid #2d2d3d;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+
+    .highlight-green { color: #96bf48; }
+    .highlight-blue { color: #7dd3fc; }
+    .highlight-orange { color: #fb923c; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Shopify Access Token Aracı</h1>
+    <p>OAuth akışını 3 adımda tamamla — kopyala yapıştır yok</p>
+  </header>
+
+  <!-- ADIM 1: Bilgileri Gir -->
+  <div class="step-card active" id="card1">
+    <div class="step-header">
+      <div class="step-badge"><span class="step-num">1</span></div>
+      <div>
+        <div class="step-title">Uygulama Bilgilerini Gir</div>
+        <div class="step-desc">Shopify Partner panondan aldığın API bilgilerini doldur</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Shop URL</label>
+      <input type="text" id="shopUrl" placeholder="rolypoly-tr.myshopify.com" />
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Client ID (API Key)</label>
+        <input type="text" id="clientId" placeholder="Client ID" />
+      </div>
+      <div class="form-group">
+        <label>Client Secret (API Secret)</label>
+        <input type="text" id="clientSecret" placeholder="Client Secret" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Redirect URI</label>
+      <input type="text" id="redirectUri" value="http://localhost" />
+    </div>
+
+    <button class="btn btn-primary" onclick="generateAuthUrl()">
+      Yetkilendirme Linki Oluştur →
+    </button>
+
+    <div id="authUrlSection" style="display:none; margin-top:20px;">
+      <div class="divider"></div>
+      <label>Yetkilendirme Linki</label>
+      <div class="url-display" id="authUrlDisplay"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a id="authUrlLink" href="#" target="_blank" class="btn btn-primary">
+          ↗ Linki Aç (Shopify'da Onayla)
+        </a>
+        <button class="copy-btn" onclick="copyText('authUrlDisplay', this)" style="padding:8px 14px; font-size:13px;">
+          Kopyala
+        </button>
+      </div>
+      <div class="info-box">
+        Linki açtıktan sonra Shopify seni <strong>redirect URI</strong>'na yönlendirecek. Tarayıcının adres çubuğundaki URL'i kopyalayıp <strong>Adım 2'ye</strong> yapıştır.
+      </div>
+    </div>
+  </div>
+
+  <!-- ADIM 2: Redirect URL'i Yapıştır -->
+  <div class="step-card" id="card2">
+    <div class="step-header">
+      <div class="step-badge"><span class="step-num">2</span></div>
+      <div>
+        <div class="step-title">Redirect URL'ini Yapıştır</div>
+        <div class="step-desc">Shopify onayladıktan sonra tarayıcı adres çubuğundaki URL</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Tarayıcıdan Kopyaladığın URL</label>
+      <textarea id="redirectUrl" placeholder="http://localhost/?code=22d6e550ed7daa42cb373c6a0e7113ff&hmac=f094...&shop=rolypoly-tr.myshopify.com&timestamp=..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="extractCode()">
+      Kodu Çıkar →
+    </button>
+
+    <div id="extractedSection" style="display:none; margin-top:16px;">
+      <div class="extracted-field">
+        <span>CODE</span>
+        <span class="extracted-value" id="extractedCode"></span>
+        <span class="badge-ok">✓ Bulundu</span>
+      </div>
+      <div class="extracted-field">
+        <span>SHOP</span>
+        <span class="extracted-value" id="extractedShop"></span>
+      </div>
+      <div class="extracted-field">
+        <span>HMAC</span>
+        <span class="extracted-value" id="extractedHmac"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADIM 3: Token Al -->
+  <div class="step-card" id="card3">
+    <div class="step-header">
+      <div class="step-badge"><span class="step-num">3</span></div>
+      <div>
+        <div class="step-title">Access Token Al</div>
+        <div class="step-desc">Shopify'dan token talebinde bulun</div>
+      </div>
+    </div>
+
+    <div id="step3Ready" style="color:#64748b; font-size:13px;">
+      Adım 2'yi tamamladıktan sonra buton aktifleşecek.
+    </div>
+
+    <div id="step3Controls" style="display:none;">
+      <div class="form-group">
+        <label>Oluşturulacak İstek URL'i</label>
+        <div class="url-display" id="tokenRequestUrl"></div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="fetchToken()">
+          Token Al →
+        </button>
+        <button class="copy-btn" onclick="copyText('tokenRequestUrl', this)" style="padding:8px 14px; font-size:13px;">
+          URL'i Kopyala (Postman)
+        </button>
+      </div>
+
+      <div id="tokenResult"></div>
+
+      <details class="postman-section">
+        <summary>↓ cURL / Postman için detaylı komut göster</summary>
+        <div class="curl-block" id="curlBlock"></div>
+        <button class="copy-btn" onclick="copyText('curlBlock', this)" style="margin-top:8px; padding:6px 14px; font-size:12px;">
+          cURL Kopyala
+        </button>
+      </details>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let extractedData = {};
+
+  function generateAuthUrl() {
+    const shop = document.getElementById('shopUrl').value.trim().replace(/^https?:\/\//, '');
+    const clientId = document.getElementById('clientId').value.trim();
+    const redirectUri = document.getElementById('redirectUri').value.trim();
+
+    if (!shop || !clientId || !redirectUri) {
+      alert('Lütfen Shop URL, Client ID ve Redirect URI alanlarını doldur.');
+      return;
+    }
+
+    const url = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}`;
+
+    document.getElementById('authUrlDisplay').textContent = url;
+    document.getElementById('authUrlLink').href = url;
+    document.getElementById('authUrlSection').style.display = 'block';
+
+    document.getElementById('card1').classList.add('active');
+    document.getElementById('card2').classList.add('active');
+
+    extractedData.shop = shop;
+    extractedData.clientId = clientId;
+    extractedData.clientSecret = document.getElementById('clientSecret').value.trim();
+  }
+
+  function extractCode() {
+    const raw = document.getElementById('redirectUrl').value.trim();
+
+    let urlToParse = raw;
+    if (!raw.startsWith('http')) urlToParse = 'http://localhost/?' + raw;
+
+    let params;
+    try {
+      const url = new URL(urlToParse);
+      params = url.searchParams;
+    } catch (e) {
+      alert('Geçersiz URL formatı. http://localhost/?code=... formatında yapıştır.');
+      return;
+    }
+
+    const code = params.get('code');
+    const shop = params.get('shop');
+    const hmac = params.get('hmac');
+
+    if (!code) {
+      alert('"code" parametresi bulunamadı. URL\'i doğru yapıştırdığından emin ol.');
+      return;
+    }
+
+    extractedData.code = code;
+    if (shop) extractedData.shop = shop.replace(/^https?:\/\//, '');
+
+    document.getElementById('extractedCode').textContent = code;
+    document.getElementById('extractedShop').textContent = shop || extractedData.shop || '-';
+    document.getElementById('extractedHmac').textContent = hmac || '-';
+    document.getElementById('extractedSection').style.display = 'block';
+
+    document.getElementById('card2').classList.add('done');
+    document.getElementById('card3').classList.add('active');
+
+    buildTokenRequest();
+  }
+
+  function buildTokenRequest() {
+    const shop = (extractedData.shop || '').replace(/^https?:\/\//, '');
+    const clientId = extractedData.clientId || document.getElementById('clientId').value.trim();
+    const clientSecret = extractedData.clientSecret || document.getElementById('clientSecret').value.trim();
+    const code = extractedData.code;
+
+    if (!shop || !clientId || !clientSecret || !code) return;
+
+    const tokenUrl = `https://${shop}/admin/oauth/access_token`;
+    const fullUrl = `${tokenUrl}?client_id=${clientId}&client_secret=${clientSecret}&code=${code}`;
+
+    document.getElementById('tokenRequestUrl').textContent = fullUrl;
+
+    document.getElementById('curlBlock').textContent =
+`curl -X POST "${tokenUrl}" \\
+  -H "Content-Type: application/x-www-form-urlencoded" \\
+  -d "client_id=${clientId}&client_secret=${clientSecret}&code=${code}"`;
+
+    extractedData.tokenUrl = tokenUrl;
+    extractedData.clientId = clientId;
+    extractedData.clientSecret = clientSecret;
+
+    document.getElementById('step3Ready').style.display = 'none';
+    document.getElementById('step3Controls').style.display = 'block';
+  }
+
+  async function fetchToken() {
+    const resultDiv = document.getElementById('tokenResult');
+    const { clientId, clientSecret, code } = extractedData;
+    const shop = (extractedData.shop || '').replace(/^https?:\/\//, '');
+
+    if (!shop || !clientId || !clientSecret || !code) {
+      resultDiv.innerHTML = '<div class="error-box">Eksik bilgi. Lütfen adımları sırayla tamamla.</div>';
+      return;
+    }
+
+    resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Token isteniyor...</div>';
+
+    try {
+      const res = await fetch('/proxy/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop, client_id: clientId, client_secret: clientSecret, code })
+      });
+
+      const data = await res.json();
+
+      if (data.access_token) {
+        document.getElementById('card3').classList.add('done');
+        resultDiv.innerHTML = `
+          <div class="result-box">
+            <div class="token-label">Access Token (Başarılı!)</div>
+            <div class="token-value" id="finalToken">${data.access_token}</div>
+            <br>
+            <button class="copy-btn" onclick="copyText('finalToken', this)" style="padding:8px 16px; font-size:13px;">
+              Token'ı Kopyala
+            </button>
+            ${data.scope ? `<div style="margin-top:10px; font-size:12px; color:#64748b;">Scope: ${data.scope}</div>` : ''}
+          </div>`;
+      } else if (data.errors || data.error) {
+        throw new Error(data.errors || data.error || JSON.stringify(data));
+      } else {
+        resultDiv.innerHTML = `<div class="result-box"><div class="token-label">Yanıt</div><div class="token-value">${JSON.stringify(data, null, 2)}</div></div>`;
+      }
+
+    } catch (err) {
+      resultDiv.innerHTML = `<div class="error-box"><strong>Hata</strong><br><br>${err.message}</div>`;
+    }
+  }
+
+  function copyText(elementId, btn) {
+    const el = document.getElementById(elementId);
+    const text = el.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Kopyalandı!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  document.getElementById('shopUrl').addEventListener('input', () => {
+    extractedData.shop = document.getElementById('shopUrl').value.trim().replace(/^https?:\/\//, '');
+  });
+  document.getElementById('clientId').addEventListener('input', () => {
+    extractedData.clientId = document.getElementById('clientId').value.trim();
+  });
+  document.getElementById('clientSecret').addEventListener('input', () => {
+    extractedData.clientSecret = document.getElementById('clientSecret').value.trim();
+  });
+</script>
+
+</body>
+</html>

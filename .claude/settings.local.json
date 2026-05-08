@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"c:\\\\Users\\\\Kaan\\\\Documents\\\\GitHub\\\\server-token\\\\index.html\" \"c:\\\\Users\\\\Kaan\\\\Documents\\\\GitHub\\\\server-token\\\\public\\\\index.html\" && echo \"copied\")",
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\Kaan\\\\Documents\\\\GitHub\\\\server-token\\\\public\" -Force)",
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\Kaan\\\\Documents\\\\GitHub\\\\server-token\\\\api\" -Force)",
+      "PowerShell(Copy-Item \"c:\\\\Users\\\\Kaan\\\\Documents\\\\GitHub\\\\server-token\\\\index.html\" \"c:\\\\Users\\\\Kaan\\\\Documents\\\\GitHub\\\\server-token\\\\public\\\\index.html\")",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\Kaan\\\\Documents\\\\GitHub\\\\server-token\" -Recurse | ForEach-Object { $_.FullName })"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Kaan\\Documents\\GitHub\\server-token"
+    ]
+  }
+}
