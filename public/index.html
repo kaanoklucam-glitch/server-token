@@ -407,7 +407,7 @@
 
     <div class="form-group">
       <label>Redirect URI</label>
-      <input type="text" id="redirectUri" />
+      <input type="text" id="redirectUri" value="http://localhost" />
     </div>
 
     <button class="btn btn-primary" onclick="generateAuthUrl()">
@@ -514,23 +514,17 @@
 <script>
   let extractedData = {};
 
-  const CALLBACK_URI = `${location.origin}/api/callback`;
-
-  document.getElementById('redirectUri').value = CALLBACK_URI;
-
   function generateAuthUrl() {
     const shop = document.getElementById('shopUrl').value.trim().replace(/^https?:\/\//, '');
     const clientId = document.getElementById('clientId').value.trim();
-    const clientSecret = document.getElementById('clientSecret').value.trim();
     const redirectUri = document.getElementById('redirectUri').value.trim();
-    if (!shop || !clientId || !clientSecret || !redirectUri) {
-      alert('Lütfen tüm alanları doldur.');
+
+    if (!shop || !clientId || !redirectUri) {
+      alert('Lütfen Shop URL, Client ID ve Redirect URI alanlarını doldur.');
       return;
     }
 
-    sessionStorage.setItem('shopify_oauth', JSON.stringify({ shop, clientId, clientSecret }));
-
-    const url = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    const url = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}`;
 
     document.getElementById('authUrlDisplay').textContent = url;
     document.getElementById('authUrlLink').href = url;
@@ -541,7 +535,7 @@
 
     extractedData.shop = shop;
     extractedData.clientId = clientId;
-    extractedData.clientSecret = clientSecret;
+    extractedData.clientSecret = document.getElementById('clientSecret').value.trim();
   }
 
   function extractCode() {
@@ -672,39 +666,6 @@
   document.getElementById('clientSecret').addEventListener('input', () => {
     extractedData.clientSecret = document.getElementById('clientSecret').value.trim();
   });
-
-  (function autoHandleCallback() {
-    const params = new URLSearchParams(location.search);
-    const code = params.get('code');
-    if (!code) return;
-
-    const saved = sessionStorage.getItem('shopify_oauth');
-    if (saved) {
-      const { shop, clientId, clientSecret } = JSON.parse(saved);
-      document.getElementById('shopUrl').value = shop;
-      document.getElementById('clientId').value = clientId;
-      document.getElementById('clientSecret').value = clientSecret;
-      extractedData = { shop, clientId, clientSecret };
-    }
-
-    const shop = params.get('shop') || extractedData.shop || '';
-    const hmac = params.get('hmac') || '';
-
-    extractedData.code = code;
-    if (shop) extractedData.shop = shop.replace(/^https?:\/\//, '');
-
-    document.getElementById('extractedCode').textContent = code;
-    document.getElementById('extractedShop').textContent = shop || '-';
-    document.getElementById('extractedHmac').textContent = hmac || '-';
-    document.getElementById('extractedSection').style.display = 'block';
-
-    document.getElementById('card1').classList.add('done');
-    document.getElementById('card2').classList.add('done');
-    document.getElementById('card3').classList.add('active');
-
-    buildTokenRequest();
-    history.replaceState({}, '', '/');
-  })();
 </script>
 
 </body>
