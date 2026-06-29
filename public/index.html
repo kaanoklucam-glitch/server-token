@@ -675,9 +675,11 @@
   });
   document.getElementById('clientId').addEventListener('input', () => {
     extractedData.clientId = document.getElementById('clientId').value.trim();
+    if (extractedData.code) buildTokenRequest();
   });
   document.getElementById('clientSecret').addEventListener('input', () => {
     extractedData.clientSecret = document.getElementById('clientSecret').value.trim();
+    if (extractedData.code) buildTokenRequest();
   });
 
   (function autoHandleCallback() {
