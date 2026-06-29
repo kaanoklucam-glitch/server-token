@@ -708,6 +708,12 @@
     document.getElementById('card2').classList.add('done');
     document.getElementById('card3').classList.add('active');
 
+    if (!extractedData.clientId || !extractedData.clientSecret) {
+      document.getElementById('step3Ready').innerHTML =
+        '<div style="color:#fb923c; font-size:13px;">⚠ Client ID ve Client Secret kayboldu (farklı sekme/session). Adım 1\'i tekrar doldur → "Kodu Çıkar"a bas.</div>';
+      document.getElementById('step3Ready').style.display = 'block';
+    }
+
     buildTokenRequest();
     history.replaceState({}, '', '/');
   })();
