@@ -537,7 +537,7 @@
       return;
     }
 
-    sessionStorage.setItem('shopify_oauth', JSON.stringify({ shop, clientId, clientSecret }));
+    localStorage.setItem('shopify_oauth', JSON.stringify({ shop, clientId, clientSecret }));
 
     const url = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
 
@@ -687,7 +687,7 @@
     const code = params.get('code');
     if (!code) return;
 
-    const saved = sessionStorage.getItem('shopify_oauth');
+    const saved = localStorage.getItem('shopify_oauth');
     if (saved) {
       const { shop, clientId, clientSecret } = JSON.parse(saved);
       document.getElementById('shopUrl').value = shop;
