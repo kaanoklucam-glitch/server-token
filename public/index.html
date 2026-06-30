@@ -625,6 +625,8 @@
       return;
     }
 
+    document.getElementById('step3Controls').style.display = 'block';
+    document.getElementById('step3Ready').style.display = 'none';
     resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Token isteniyor...</div>';
 
     try {
