@@ -524,7 +524,8 @@
 
   const CALLBACK_URI = `${location.origin}/api/callback`;
   document.getElementById('redirectUri').value = CALLBACK_URI;
-  document.getElementById('noteCallbackUrl').textContent = CALLBACK_URI;
+  const noteEl = document.getElementById('noteCallbackUrl');
+  if (noteEl) noteEl.textContent = CALLBACK_URI;
 
   function generateAuthUrl() {
     const shop = document.getElementById('shopUrl').value.trim().replace(/^https?:\/\//, '');
