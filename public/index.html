@@ -637,6 +637,7 @@
       const data = await res.json();
 
       if (data.access_token) {
+        localStorage.setItem('last_access_token', JSON.stringify({ token: data.access_token, scope: data.scope || '', shop }));
         document.getElementById('card3').classList.add('done');
         resultDiv.innerHTML = `
           <div class="result-box">
@@ -647,6 +648,7 @@
               Token'ı Kopyala
             </button>
             ${data.scope ? `<div style="margin-top:10px; font-size:12px; color:#64748b;">Scope: ${data.scope}</div>` : ''}
+            <div style="margin-top:8px; font-size:11px; color:#64748b;">Yerel depolamaya kaydedildi — sayfa yenilense de görünür.</div>
           </div>`;
       } else if (data.errors || data.error) {
         throw new Error(data.errors || data.error || JSON.stringify(data));
@@ -722,6 +724,23 @@
     if (extractedData.clientId && extractedData.clientSecret) {
       setTimeout(fetchToken, 800);
     }
+  })();
+
+  (function showSavedToken() {
+    const saved = localStorage.getItem('last_access_token');
+    if (!saved) return;
+    const { token, scope, shop } = JSON.parse(saved);
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:#0a1a05;border:1px solid #2a4a1a;border-radius:12px;padding:18px 22px;margin-bottom:28px;';
+    banner.innerHTML = `
+      <div style="font-size:12px;font-weight:700;color:#5c9e31;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Son Kaydedilen Token — ${shop || ''}</div>
+      <div style="font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:#96bf48;word-break:break-all;background:#071205;padding:10px 12px;border-radius:6px;border:1px solid #1a3a10;" id="savedTokenVal">${token}</div>
+      ${scope ? `<div style="margin-top:8px;font-size:12px;color:#64748b;">Scope: ${scope}</div>` : ''}
+      <div style="margin-top:10px;display:flex;gap:10px;">
+        <button class="copy-btn" onclick="copyText('savedTokenVal',this)" style="padding:6px 14px;font-size:12px;">Kopyala</button>
+        <button class="copy-btn" onclick="localStorage.removeItem('last_access_token');this.closest('div[style]').remove();" style="padding:6px 14px;font-size:12px;color:#f87171;border-color:#4a1a1a;">Sil</button>
+      </div>`;
+    document.querySelector('.container').insertBefore(banner, document.querySelector('header').nextSibling);
   })();
 </script>
 
