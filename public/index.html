@@ -718,6 +718,10 @@
 
     buildTokenRequest();
     history.replaceState({}, '', '/');
+
+    if (extractedData.clientId && extractedData.clientSecret) {
+      setTimeout(fetchToken, 800);
+    }
   })();
 </script>
 
