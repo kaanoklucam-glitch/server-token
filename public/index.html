@@ -427,7 +427,7 @@
       <label>Yetkilendirme Linki</label>
       <div class="url-display" id="authUrlDisplay"></div>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a id="authUrlLink" href="#" target="_blank" class="btn btn-primary">
+        <a id="authUrlLink" href="#" class="btn btn-primary">
           ↗ Linki Aç (Shopify'da Onayla)
         </a>
         <button class="copy-btn" onclick="copyText('authUrlDisplay', this)" style="padding:8px 14px; font-size:13px;">
@@ -641,7 +641,7 @@
       if (data.access_token) {
         localStorage.setItem('last_access_token', JSON.stringify({ token: data.access_token, scope: data.scope || '', shop }));
         document.getElementById('card3').classList.add('done');
-        resultDiv.innerHTML = `
+        const tokenHtml = `
           <div class="result-box">
             <div class="token-label">Access Token (Başarılı!)</div>
             <div class="token-value" id="finalToken">${data.access_token}</div>
@@ -650,8 +650,23 @@
               Token'ı Kopyala
             </button>
             ${data.scope ? `<div style="margin-top:10px; font-size:12px; color:#64748b;">Scope: ${data.scope}</div>` : ''}
-            <div style="margin-top:8px; font-size:11px; color:#64748b;">Yerel depolamaya kaydedildi — sayfa yenilense de görünür.</div>
           </div>`;
+        resultDiv.innerHTML = tokenHtml;
+        const existingBanner = document.getElementById('savedTokenBanner');
+        if (existingBanner) existingBanner.remove();
+        const banner = document.createElement('div');
+        banner.id = 'savedTokenBanner';
+        banner.style.cssText = 'background:#0a1a05;border:1px solid #2a4a1a;border-radius:12px;padding:18px 22px;margin-bottom:28px;';
+        banner.innerHTML = `
+          <div style="font-size:12px;font-weight:700;color:#5c9e31;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Access Token — ${shop}</div>
+          <div style="font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:#96bf48;word-break:break-all;background:#071205;padding:10px 12px;border-radius:6px;border:1px solid #1a3a10;" id="bannerTokenVal">${data.access_token}</div>
+          ${data.scope ? `<div style="margin-top:8px;font-size:12px;color:#64748b;">Scope: ${data.scope}</div>` : ''}
+          <div style="margin-top:10px;display:flex;gap:10px;">
+            <button class="copy-btn" onclick="copyText('bannerTokenVal',this)" style="padding:6px 14px;font-size:12px;">Kopyala</button>
+            <button class="copy-btn" onclick="localStorage.removeItem('last_access_token');this.closest('#savedTokenBanner').remove();" style="padding:6px 14px;font-size:12px;color:#f87171;border-color:#4a1a1a;">Sil</button>
+          </div>`;
+        document.querySelector('.container').insertBefore(banner, document.querySelector('header').nextSibling);
+        banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else if (data.errors || data.error) {
         throw new Error(data.errors || data.error || JSON.stringify(data));
       } else {
@@ -733,14 +748,15 @@
     if (!saved) return;
     const { token, scope, shop } = JSON.parse(saved);
     const banner = document.createElement('div');
+    banner.id = 'savedTokenBanner';
     banner.style.cssText = 'background:#0a1a05;border:1px solid #2a4a1a;border-radius:12px;padding:18px 22px;margin-bottom:28px;';
     banner.innerHTML = `
       <div style="font-size:12px;font-weight:700;color:#5c9e31;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Son Kaydedilen Token — ${shop || ''}</div>
-      <div style="font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:#96bf48;word-break:break-all;background:#071205;padding:10px 12px;border-radius:6px;border:1px solid #1a3a10;" id="savedTokenVal">${token}</div>
+      <div style="font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:#96bf48;word-break:break-all;background:#071205;padding:10px 12px;border-radius:6px;border:1px solid #1a3a10;" id="bannerTokenVal">${token}</div>
       ${scope ? `<div style="margin-top:8px;font-size:12px;color:#64748b;">Scope: ${scope}</div>` : ''}
       <div style="margin-top:10px;display:flex;gap:10px;">
-        <button class="copy-btn" onclick="copyText('savedTokenVal',this)" style="padding:6px 14px;font-size:12px;">Kopyala</button>
-        <button class="copy-btn" onclick="localStorage.removeItem('last_access_token');this.closest('div[style]').remove();" style="padding:6px 14px;font-size:12px;color:#f87171;border-color:#4a1a1a;">Sil</button>
+        <button class="copy-btn" onclick="copyText('bannerTokenVal',this)" style="padding:6px 14px;font-size:12px;">Kopyala</button>
+        <button class="copy-btn" onclick="localStorage.removeItem('last_access_token');this.closest('#savedTokenBanner').remove();" style="padding:6px 14px;font-size:12px;color:#f87171;border-color:#4a1a1a;">Sil</button>
       </div>`;
     document.querySelector('.container').insertBefore(banner, document.querySelector('header').nextSibling);
   })();
