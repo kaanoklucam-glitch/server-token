@@ -620,13 +620,13 @@
     const { clientId, clientSecret, code } = extractedData;
     const shop = (extractedData.shop || '').replace(/^https?:\/\//, '');
 
-    if (!shop || !clientId || !clientSecret || !code) {
-      resultDiv.innerHTML = '<div class="error-box">Eksik bilgi. Lütfen adımları sırayla tamamla.</div>';
-      return;
-    }
-
     document.getElementById('step3Controls').style.display = 'block';
     document.getElementById('step3Ready').style.display = 'none';
+
+    if (!shop || !clientId || !clientSecret || !code) {
+      resultDiv.innerHTML = '<div class="error-box">Eksik bilgi: Client ID ve Client Secret\'i Adım 1\'e gir, sonra tekrar dene.</div>';
+      return;
+    }
     resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div> Token isteniyor...</div>';
 
     try {
